@@ -24,11 +24,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api', router);
 
 // Serve static files from the React app build directory
-app.use(express.static(path.join(__dirname, '../client/dist')));
+const clientDistPath = path.join(__dirname, '../../client/dist');
+app.use(express.static(clientDistPath));
 
 // Catch all handler: send back React's index.html file for client-side routing
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+  res.sendFile(path.join(clientDistPath, 'index.html'));
 });
 
 // Health check endpoint
