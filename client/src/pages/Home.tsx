@@ -36,7 +36,7 @@ export default function Home() {
           >
             <p className="font-eyebrow text-[hsl(36_55%_72%)] mb-5">A century on the Amalfi coast</p>
             <h1 className="font-display text-5xl sm:text-7xl lg:text-8xl leading-[1.02] tracking-tight">
-              Where the Mediterranean<br/>still feels undiscovered.
+              A Mediterranean escape<br/>waiting to be discovered.
             </h1>
             <p className="mt-6 text-lg sm:text-xl text-white/85 max-w-xl leading-relaxed">
               {hotel?.tagline ?? "A 5-star seaside retreat above the cliffs of Positano — quiet, family-run, and unhurried since 1924."}

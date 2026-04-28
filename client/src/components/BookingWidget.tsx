@@ -16,16 +16,16 @@ function todayPlus(days: number): string {
 
 export default function BookingWidget({ variant = "hero" }: Props) {
   const [, setLocation] = useLocation();
-  const [checkIn, setCheckIn] = useState(todayPlus(7));
-  const [checkOut, setCheckOut] = useState(todayPlus(10));
-  const [guests, setGuests] = useState(2);
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
+  const [guests, setGuests] = useState("");
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams({
       checkIn,
       checkOut,
-      guests: String(guests),
+      guests: guests || "1",
     });
     setLocation(`/book?${params.toString()}`);
   };
@@ -59,7 +59,7 @@ export default function BookingWidget({ variant = "hero" }: Props) {
           id="co"
           type="date"
           value={checkOut}
-          min={checkIn}
+          min={checkIn || todayPlus(1)}
           onChange={(e) => setCheckOut(e.target.value)}
           className="mt-2 h-12 text-base"
           required
@@ -73,7 +73,7 @@ export default function BookingWidget({ variant = "hero" }: Props) {
           min={1}
           max={6}
           value={guests}
-          onChange={(e) => setGuests(Number(e.target.value))}
+          onChange={(e) => setGuests(e.target.value)}
           className="mt-2 h-12 text-base"
           required
         />
