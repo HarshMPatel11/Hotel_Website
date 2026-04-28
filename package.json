@@ -1,0 +1,26 @@
+{
+  "name": "aurelia-grand-mern",
+  "version": "1.0.0",
+  "description": "MERN stack hotel website - Aurelia Grand",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w server\" \"npm run dev -w client\" --kill-others",
+    "dev:server": "npm run dev -w server",
+    "dev:client": "npm run dev -w client",
+    "build": "npm run build -w client && npm run build -w server",
+    "build:client": "npm run build -w client",
+    "build:server": "npm run build -w server",
+    "seed": "npm run seed -w server",
+    "start": "npm start -w server"
+  },
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.3.2",
+    "prettier": "^3.1.0"
+  }
+}
