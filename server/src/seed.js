@@ -461,11 +461,16 @@ async function seed() {
 
     console.log('✅ Database seeded successfully!');
     await mongoose.connection.close();
-    process.exit(0);
   } catch (error) {
     console.error('❌ Seed error:', error);
     process.exit(1);
   }
 }
 
-seed();
+export default seed;
+
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+if (process.argv[1] === __filename) {
+  seed().then(() => process.exit(0));
+}
