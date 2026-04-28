@@ -58,8 +58,3 @@ Frontend runs at `http://localhost:5173` and backend runs at `http://localhost:5
 - `POST /api/events/inquiries`
 - `POST /api/contact/messages`
 
-## Notes
-
-- The frontend UI/component structure was kept intact and moved into `client/src`.
-- The old platform-specific workspace files were removed.
-- The API hook layer now lives inside the client so the React pages can keep using the same query/mutation shape.
