@@ -17,7 +17,7 @@ export default function Home() {
   return (
     <div>
       {/* HERO */}
-      <section className="relative h-screen min-h-[720px] w-full overflow-hidden">
+      <section className="relative min-h-[calc(100vh-5rem)] min-h-[720px] w-full overflow-visible">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
@@ -27,7 +27,7 @@ export default function Home() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/65" />
 
-        <div className="relative h-full mx-auto max-w-7xl px-6 lg:px-10 flex flex-col justify-end pb-16 pt-32">
+        <div className="relative min-h-full mx-auto max-w-7xl px-6 lg:px-10 flex flex-col justify-center pt-28 pb-20">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -35,7 +35,7 @@ export default function Home() {
             className="max-w-3xl text-white"
           >
             <p className="font-eyebrow text-[hsl(36_55%_72%)] mb-5">A century on the Amalfi coast</p>
-            <h1 className="font-display text-5xl sm:text-7xl lg:text-8xl leading-[1.02] tracking-tight">
+            <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl xl:text-8xl leading-tight tracking-tight">
               A Mediterranean escape<br/>waiting to be discovered.
             </h1>
             <p className="mt-6 text-lg sm:text-xl text-white/85 max-w-xl leading-relaxed">
