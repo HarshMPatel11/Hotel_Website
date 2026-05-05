@@ -17,28 +17,29 @@ export default function Home() {
   return (
     <div>
       {/* HERO */}
-      <section className="relative min-h-[calc(100vh-5rem)] min-h-[720px] w-full overflow-visible">
+      <section className="relative min-h-[calc(100vh-5rem)] min-h-[720px] w-full overflow-visible bg-[hsl(200_38%_12%)]">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage:
-              "url(https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=2400&q=80)",
+              "url(https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=2400&q=85)",
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/65" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,hsl(200_45%_10%/0.82)_0%,hsl(200_45%_10%/0.58)_34%,hsl(200_45%_10%/0.2)_68%,transparent_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,hsl(200_45%_10%/0.28)_0%,transparent_42%,hsl(200_45%_10%/0.58)_100%)]" />
 
         <div className="relative min-h-full mx-auto max-w-7xl px-6 lg:px-10 flex flex-col justify-center pt-28 pb-20">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, ease: "easeOut" }}
-            className="max-w-3xl text-white"
+            className="max-w-2xl text-white drop-shadow-[0_2px_18px_hsl(200_45%_8%/0.45)]"
           >
-            <p className="font-eyebrow text-[hsl(36_55%_72%)] mb-5">A century on the Amalfi coast</p>
-            <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl xl:text-8xl leading-tight tracking-tight">
-              A Mediterranean escape<br/>waiting to be discovered.
+            <p className="font-eyebrow text-[hsl(36_68%_76%)] mb-5">A century on the Amalfi coast</p>
+            <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl xl:text-8xl leading-[0.96] tracking-tight">
+              Where the Amalfi coast slows down.
             </h1>
-            <p className="mt-6 text-lg sm:text-xl text-white/85 max-w-xl leading-relaxed">
+            <p className="mt-6 text-lg sm:text-xl text-white/90 max-w-lg leading-relaxed">
               {hotel?.tagline ?? "A 5-star seaside retreat above the cliffs of Positano — quiet, family-run, and unhurried since 1924."}
             </p>
           </motion.div>
