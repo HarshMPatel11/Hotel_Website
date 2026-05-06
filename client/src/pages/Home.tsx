@@ -28,18 +28,18 @@ export default function Home() {
         <div className="absolute inset-0 bg-[linear-gradient(90deg,hsl(200_45%_10%/0.82)_0%,hsl(200_45%_10%/0.58)_34%,hsl(200_45%_10%/0.2)_68%,transparent_100%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,hsl(200_45%_10%/0.28)_0%,transparent_42%,hsl(200_45%_10%/0.58)_100%)]" />
 
-        <div className="relative min-h-full mx-auto max-w-7xl px-6 lg:px-10 flex flex-col justify-center pt-28 pb-20">
+        <div className="relative min-h-full mx-auto max-w-7xl px-6 lg:px-10 flex flex-col items-center lg:items-start justify-center pt-28 pb-20">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, ease: "easeOut" }}
-            className="max-w-2xl text-white drop-shadow-[0_2px_18px_hsl(200_45%_8%/0.45)]"
+            className="max-w-2xl text-center lg:text-left text-white drop-shadow-[0_2px_18px_hsl(200_45%_8%/0.45)]"
           >
             <p className="font-eyebrow text-[hsl(36_68%_76%)] mb-5">A century on the Amalfi coast</p>
             <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl xl:text-8xl leading-[0.96] tracking-tight">
               Where the Amalfi coast slows down.
             </h1>
-            <p className="mt-6 text-lg sm:text-xl text-white/90 max-w-lg leading-relaxed">
+            <p className="mx-auto lg:mx-0 mt-6 text-lg sm:text-xl text-white/90 max-w-lg leading-relaxed">
               {hotel?.tagline ?? "A 5-star seaside retreat above the cliffs of Positano — quiet, family-run, and unhurried since 1924."}
             </p>
           </motion.div>
@@ -48,7 +48,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.25, ease: "easeOut" }}
-            className="mt-10"
+            className="mt-10 w-full max-w-5xl"
           >
             <BookingWidget />
           </motion.div>
@@ -91,7 +91,7 @@ export default function Home() {
               <p className="font-eyebrow mt-2">Years of hospitality</p>
             </div>
           </div>
-          <div>
+          <div className="text-center lg:text-left">
             <p className="font-eyebrow text-accent mb-5">Welcome to Aurelia Grand</p>
             <h2 className="font-display text-4xl sm:text-5xl leading-[1.1]">
               A family-run grand hotel, written into Positano's coastline.
@@ -104,7 +104,7 @@ export default function Home() {
                 Forty-eight rooms and suites, two restaurants, a Mediterranean spa, and a saltwater pool carved into the rock. Nothing more, nothing less.
               </p>
             </div>
-            <Link href="/about" className="inline-flex items-center gap-2 mt-8 font-medium text-primary hover:gap-3 transition-all">
+            <Link href="/about" className="inline-flex items-center justify-center lg:justify-start gap-2 mt-8 font-medium text-primary hover:gap-3 transition-all">
               Our story <ArrowRight size={18} />
             </Link>
           </div>
@@ -141,7 +141,7 @@ export default function Home() {
           />
           <div className="mt-14 grid gap-10 md:grid-cols-2">
             {dining?.slice(0, 2).map((venue) => (
-              <Link key={venue.id} href="/dining" className="group block">
+              <Link key={venue.id} href="/dining" className="group block text-center md:text-left">
                 <div className="aspect-[5/4] overflow-hidden rounded-md mb-5 bg-muted">
                   <img
                     src={venue.image}

@@ -20,7 +20,7 @@ export default function Dining() {
           <div className="space-y-24">
             {venues?.map((v, idx) => (
               <article key={v.id} className={`grid lg:grid-cols-2 gap-12 lg:gap-16 items-center ${idx % 2 === 1 ? "lg:[direction:rtl]" : ""}`}>
-                <div className="lg:[direction:ltr]">
+                <div className="text-center lg:text-left lg:[direction:ltr]">
                   <div className="aspect-[4/3] overflow-hidden rounded-md bg-muted shadow-lg">
                     <img
                       src={v.image}
@@ -34,7 +34,7 @@ export default function Dining() {
                   <p className="font-eyebrow text-accent mb-3">{v.cuisine}</p>
                   <h2 className="font-display text-4xl sm:text-5xl mb-4">{v.name}</h2>
                   {v.priceRange && (
-                    <p className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                    <p className="flex items-center justify-center lg:justify-start gap-2 text-sm text-muted-foreground mb-4">
                       <Award size={14} className="text-accent" /> {v.priceRange}
                     </p>
                   )}
@@ -44,7 +44,7 @@ export default function Dining() {
                     {v.hours && (
                       <div>
                         <p className="font-eyebrow text-muted-foreground mb-1.5">Hours</p>
-                        <p className="text-sm flex items-start gap-2"><Clock size={14} className="mt-0.5 text-accent" /> {v.hours}</p>
+                        <p className="text-sm flex items-start justify-center lg:justify-start gap-2"><Clock size={14} className="mt-0.5 text-accent" /> {v.hours}</p>
                       </div>
                     )}
                     {v.dressCode && (
@@ -56,7 +56,7 @@ export default function Dining() {
                     {v.signatureDishes && v.signatureDishes.length > 0 && (
                       <div className="sm:col-span-2">
                         <p className="font-eyebrow text-muted-foreground mb-1.5">Signature dishes</p>
-                        <p className="text-sm flex items-start gap-2"><MapPin size={14} className="mt-0.5 text-accent" /> {v.signatureDishes.join(" · ")}</p>
+                        <p className="text-sm flex items-start justify-center lg:justify-start gap-2"><MapPin size={14} className="mt-0.5 text-accent" /> {v.signatureDishes.join(" · ")}</p>
                       </div>
                     )}
                   </div>
@@ -67,7 +67,7 @@ export default function Dining() {
         </div>
       </section>
 
-      <section className="bg-[hsl(200_38%_12%)] text-white py-20">
+      <section className="bg-[hsl(200_38%_12%)] text-white py-16 sm:py-20 -mb-20">
         <div className="mx-auto max-w-3xl px-6 text-center">
           <p className="font-eyebrow text-[hsl(36_55%_60%)] mb-4">Reservations</p>
           <h2 className="font-display text-3xl sm:text-4xl mb-4">Tables fill quickly in season.</h2>

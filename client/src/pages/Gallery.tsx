@@ -83,7 +83,12 @@ export default function Gallery() {
           <button className="absolute top-6 right-6 text-white p-2" aria-label="Close">
             <X size={28} />
           </button>
-          <img src={lightbox} alt="" className="max-w-full max-h-full object-contain" />
+          <img
+            src={lightbox}
+            alt=""
+            className="max-w-[min(86vw,1100px)] max-h-[78vh] object-contain rounded-md shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          />
         </div>
       )}
     </div>

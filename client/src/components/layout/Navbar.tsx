@@ -71,9 +71,12 @@ export default function Navbar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "text-sm font-medium transition-colors hover:opacity-100",
+                  "relative pb-1 text-sm font-medium transition-colors hover:opacity-100",
+                  "after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:rounded-full after:transition-transform after:duration-300 after:ease-out hover:after:scale-x-100 focus-visible:after:scale-x-100",
                   transparent ? "text-white/85 hover:text-white" : "text-foreground/80 hover:text-foreground",
+                  transparent ? "after:bg-white" : "after:bg-accent",
                   active && (transparent ? "text-white" : "text-foreground"),
+                  active && "after:scale-x-100",
                 )}
               >
                 {item.label}
@@ -116,7 +119,11 @@ export default function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="py-3 text-base text-foreground/85 hover:text-foreground border-b border-border/50 last:border-0"
+                className={cn(
+                  "relative py-3 text-base text-foreground/85 hover:text-foreground border-b border-border/50 last:border-0",
+                  "after:absolute after:left-0 after:bottom-2 after:h-0.5 after:w-10 after:origin-left after:scale-x-0 after:rounded-full after:bg-accent after:transition-transform after:duration-300 after:ease-out hover:after:scale-x-100 focus-visible:after:scale-x-100",
+                  location === item.href && "text-foreground after:scale-x-100",
+                )}
               >
                 {item.label}
               </Link>

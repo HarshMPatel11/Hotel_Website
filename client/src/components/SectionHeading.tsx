@@ -14,7 +14,7 @@ export default function SectionHeading({ eyebrow, title, description, align = "c
     <div
       className={cn(
         "max-w-3xl",
-        align === "center" ? "mx-auto text-center" : "text-left",
+        align === "center" ? "mx-auto text-center" : "mx-auto text-center lg:mx-0 lg:text-left",
         className,
       )}
     >
