@@ -68,14 +68,6 @@ export default function Contact() {
               </ContactItem>
             </div>
 
-            <div className="mt-10 aspect-[4/3] rounded-md overflow-hidden border border-border shadow-sm">
-              <iframe
-                title="Hotel location"
-                className="w-full h-full"
-                loading="lazy"
-                src="https://www.openstreetmap.org/export/embed.html?bbox=14.4795%2C40.6233%2C14.5045%2C40.6383&layer=mapnik&marker=40.6308%2C14.4920"
-              />
-            </div>
           </div>
 
           {submitted ? (
@@ -114,6 +106,15 @@ export default function Contact() {
             </form>
           )}
         </div>
+      </section>
+
+      <section className="h-[420px] overflow-hidden border-y border-border sm:h-[520px]">
+        <iframe
+          title="Hotel location"
+          className="h-full w-full"
+          loading="lazy"
+          src="https://www.openstreetmap.org/export/embed.html?bbox=14.4795%2C40.6233%2C14.5045%2C40.6383&layer=mapnik&marker=40.6308%2C14.4920"
+        />
       </section>
     </div>
   );
