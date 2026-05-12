@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { useCheckAvailability, useCreateBooking, useListRooms, getCheckAvailabilityQueryKey } from "@/lib/api-client-react";
+import { useFieldArray, useForm } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
+import { useCheckAvailability, useCreateBooking, useListRooms, getCheckAvailabilityQueryKey, customFetch, getBookingByCode } from "@/lib/api-client-react";
+import type { Booking, BookingInput } from "@/lib/api-client-react";
 import PageHero from "@/components/PageHero";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Check, Users, Maximize, Bed, ArrowRight, Calendar } from "lucide-react";
+import { Check, Users, Maximize, Bed, ArrowRight, Calendar, Plus, Trash2 } from "lucide-react";
 import { differenceInCalendarDays, format } from "date-fns";
 import { getErrorMessage } from "@/lib/api-error";
 
@@ -21,17 +23,31 @@ function todayPlus(days: number): string {
 interface SearchForm {
   checkIn: string;
   checkOut: string;
-  guests: number;
+  adults: string;
+  children: string;
 }
 
 interface GuestForm {
   fullName: string;
   email: string;
-  phone: string;
+  phones: { value: string }[];
   specialRequests?: string;
 }
 
 type Step = "search" | "select" | "guest" | "confirm";
+
+function defaultSearch(): SearchForm {
+  return {
+    checkIn: "",
+    checkOut: "",
+    adults: "",
+    children: "",
+  };
+}
+
+function toGuestCount(value: string): number {
+  return Number(value) || 0;
+}
 
 export default function Book() {
   const params = new URLSearchParams(window.location.search);
@@ -39,14 +55,21 @@ export default function Book() {
 
   const [step, setStep] = useState<Step>(initialRoomId ? "select" : "search");
   const [search, setSearch] = useState<SearchForm>({
-    checkIn: params.get("checkIn") ?? todayPlus(7),
-    checkOut: params.get("checkOut") ?? todayPlus(10),
-    guests: Number(params.get("guests") ?? 2),
+    checkIn: params.get("checkIn") ?? "",
+    checkOut: params.get("checkOut") ?? "",
+    adults: params.get("adults") ?? params.get("guests") ?? "",
+    children: params.get("children") ?? "",
   });
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(initialRoomId);
-  const [confirmation, setConfirmation] = useState<{ confirmationCode: string; totalPrice: number; currency: string } | null>(null);
+  const [confirmation, setConfirmation] = useState<{ confirmationCode: string; totalPrice: number; currency: string; heading?: string } | null>(null);
+  const [editingCode, setEditingCode] = useState<string | null>(null);
+  const [manageCode, setManageCode] = useState("");
+  const [manageError, setManageError] = useState("");
 
-  const availParams = { checkIn: search.checkIn, checkOut: search.checkOut, guests: search.guests };
+  const adultCount = toGuestCount(search.adults);
+  const childCount = toGuestCount(search.children);
+  const totalGuests = adultCount + childCount;
+  const availParams = { checkIn: search.checkIn, checkOut: search.checkOut, guests: totalGuests };
   const { data: availability, isLoading: searching, refetch } = useCheckAvailability(
     availParams,
     { query: { enabled: step !== "search", queryKey: getCheckAvailabilityQueryKey(availParams) } },
@@ -54,7 +77,27 @@ export default function Book() {
 
   const { data: allRooms } = useListRooms();
   const createBooking = useCreateBooking();
-  const guestForm = useForm<GuestForm>();
+  const lookupBooking = useMutation({
+    mutationFn: (code: string) => getBookingByCode(code.trim().toUpperCase()),
+  });
+  const updateBooking = useMutation({
+    mutationFn: ({ code, data }: { code: string; data: BookingInput }) =>
+      customFetch<Booking>(`/api/bookings/${code}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }),
+  });
+  const cancelBooking = useMutation({
+    mutationFn: (code: string) =>
+      customFetch<Booking>(`/api/bookings/${code}/cancel`, {
+        method: "PATCH",
+      }),
+  });
+  const guestForm = useForm<GuestForm>({
+    defaultValues: { phones: [{ value: "" }] },
+  });
+  const phoneFields = useFieldArray({ control: guestForm.control, name: "phones" });
 
   const nights = Math.max(1, differenceInCalendarDays(new Date(search.checkOut), new Date(search.checkIn)));
 
@@ -72,21 +115,62 @@ export default function Book() {
     setTimeout(() => refetch(), 0);
   };
 
+  const resetReservation = () => {
+    setSearch(defaultSearch());
+    setSelectedRoomId(null);
+    setConfirmation(null);
+    setEditingCode(null);
+    setManageCode("");
+    setManageError("");
+    guestForm.reset({ fullName: "", email: "", phones: [{ value: "" }], specialRequests: "" });
+    window.history.replaceState(null, "", "/book");
+    setStep("search");
+  };
+
+  const bookingInputFromGuest = (data: GuestForm): BookingInput | null => {
+    if (!selectedRoom) return null;
+
+    return {
+      roomId: selectedRoom.id,
+      checkIn: search.checkIn,
+      checkOut: search.checkOut,
+      guests: totalGuests,
+      adults: adultCount,
+      children: childCount,
+      guestName: data.fullName,
+      guestEmail: data.email,
+      guestPhone: data.phones[0]?.value.trim() || "",
+      guestPhones: data.phones.map((phone) => phone.value.trim()).filter(Boolean),
+      specialRequests: data.specialRequests || undefined,
+    };
+  };
+
   const onSubmitGuest = (data: GuestForm) => {
-    if (!selectedRoom) return;
-    createBooking.mutate(
-      {
-        data: {
-          roomId: selectedRoom.id,
-          checkIn: search.checkIn,
-          checkOut: search.checkOut,
-          guests: search.guests,
-          guestName: data.fullName,
-          guestEmail: data.email,
-          guestPhone: data.phone,
-          specialRequests: data.specialRequests || undefined,
+    const bookingInput = bookingInputFromGuest(data);
+    if (!bookingInput) return;
+
+    if (editingCode) {
+      updateBooking.mutate(
+        { code: editingCode, data: bookingInput },
+        {
+          onSuccess: (booking) => {
+            setConfirmation({
+              confirmationCode: booking.confirmationCode,
+              totalPrice: booking.totalPrice,
+              currency: booking.currency,
+              heading: "Reservation updated",
+            });
+            setEditingCode(null);
+            guestForm.reset({ fullName: "", email: "", phones: [{ value: "" }], specialRequests: "" });
+            setStep("confirm");
+          },
         },
-      },
+      );
+      return;
+    }
+
+    createBooking.mutate(
+      { data: bookingInput },
       {
         onSuccess: (booking) => {
           setConfirmation({
@@ -94,10 +178,58 @@ export default function Book() {
             totalPrice: booking.totalPrice,
             currency: booking.currency,
           });
+          guestForm.reset({ fullName: "", email: "", phones: [{ value: "" }], specialRequests: "" });
           setStep("confirm");
         },
       },
     );
+  };
+
+  const loadBookingForEdit = (booking: Booking) => {
+    if (booking.status === "cancelled") {
+      setManageError("This reservation has already been cancelled.");
+      return;
+    }
+
+    setSearch({
+      checkIn: booking.checkIn,
+      checkOut: booking.checkOut,
+      adults: String(booking.adults ?? booking.guests),
+      children: String(booking.children ?? 0),
+    });
+    setSelectedRoomId(booking.roomId);
+    setEditingCode(booking.confirmationCode);
+    guestForm.reset({
+      fullName: booking.guestName,
+      email: booking.guestEmail,
+      phones: (booking.guestPhones?.length ? booking.guestPhones : [booking.guestPhone]).map((phone) => ({ value: phone })),
+      specialRequests: booking.specialRequests ?? "",
+    });
+    setManageError("");
+    setStep("guest");
+  };
+
+  const onLookupReservation = (e: React.FormEvent) => {
+    e.preventDefault();
+    setManageError("");
+    lookupBooking.mutate(manageCode, {
+      onSuccess: loadBookingForEdit,
+      onError: (error) => setManageError(getErrorMessage(error)),
+    });
+  };
+
+  const onCancelReservation = (code: string) => {
+    if (!window.confirm("Cancel this reservation? This will release the room for those dates.")) return;
+    cancelBooking.mutate(code, {
+      onSuccess: () => {
+        setManageError("");
+        setConfirmation(null);
+        setEditingCode(null);
+        guestForm.reset({ fullName: "", email: "", phones: [{ value: "" }], specialRequests: "" });
+        setStep("search");
+      },
+      onError: (error) => setManageError(getErrorMessage(error)),
+    });
   };
 
   useEffect(() => {
@@ -118,18 +250,53 @@ export default function Book() {
           <Stepper current={step} />
 
           {step === "search" && (
-            <form onSubmit={onSearch} className="mt-12 bg-card border border-card-border rounded-md p-8 sm:p-10 grid sm:grid-cols-3 gap-5 items-end shadow-sm">
+            <div className="mt-12 space-y-8">
+            <form onSubmit={onSearch} className="bg-card border border-card-border rounded-md p-8 sm:p-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-5 items-end shadow-sm">
               <SearchField label="Check in">
                 <Input type="date" min={todayPlus(0)} value={search.checkIn} onChange={(e) => setSearch({ ...search, checkIn: e.target.value })} className="h-12" required />
               </SearchField>
               <SearchField label="Check out">
                 <Input type="date" min={search.checkIn} value={search.checkOut} onChange={(e) => setSearch({ ...search, checkOut: e.target.value })} className="h-12" required />
               </SearchField>
-              <SearchField label="Guests">
-                <Input type="number" min={1} max={6} value={search.guests} onChange={(e) => setSearch({ ...search, guests: Number(e.target.value) })} className="h-12" required />
+              <SearchField label="Adults">
+                <Input type="number" min={1} value={search.adults} onChange={(e) => setSearch({ ...search, adults: e.target.value })} className="h-12" required />
               </SearchField>
-              <Button type="submit" size="lg" className="sm:col-span-3 rounded-full h-12">Search availability</Button>
+              <SearchField label="Children">
+                <Input type="number" min={0} value={search.children} onChange={(e) => setSearch({ ...search, children: e.target.value })} className="h-12" required />
+              </SearchField>
+              <Button type="submit" size="lg" className="sm:col-span-2 lg:col-span-4 rounded-full h-12">Search availability</Button>
             </form>
+
+            <form onSubmit={onLookupReservation} className="bg-card border border-card-border rounded-md p-6 sm:p-8 shadow-sm">
+              <div className="grid lg:grid-cols-[1fr_auto] gap-4 items-end">
+                <SearchField label="Manage reservation">
+                  <Input value={manageCode} onChange={(e) => setManageCode(e.target.value)} className="h-12 uppercase" placeholder="AG-XXXXXXXX" required />
+                </SearchField>
+                <Button type="submit" variant="outline" className="h-12 rounded-full px-8" disabled={lookupBooking.isPending}>
+                  {lookupBooking.isPending ? "Finding..." : "Find reservation"}
+                </Button>
+              </div>
+              {lookupBooking.data && !manageError && (
+                <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5 text-sm">
+                  <div>
+                    <p className="font-medium">{lookupBooking.data.roomName}</p>
+                    <p className="text-muted-foreground">{lookupBooking.data.checkIn} to {lookupBooking.data.checkOut} · {lookupBooking.data.status}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button type="button" size="sm" className="rounded-full" onClick={() => loadBookingForEdit(lookupBooking.data)}>
+                      Edit
+                    </Button>
+                    <Button type="button" size="sm" variant="outline" className="rounded-full" onClick={() => onCancelReservation(lookupBooking.data.confirmationCode)} disabled={cancelBooking.isPending || lookupBooking.data.status === "cancelled"}>
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              )}
+              {(manageError || cancelBooking.isError) && (
+                <p className="text-sm text-destructive mt-3">{manageError || getErrorMessage(cancelBooking.error)}</p>
+              )}
+            </form>
+            </div>
           )}
 
           {step === "select" && (
@@ -191,7 +358,7 @@ export default function Book() {
           {step === "guest" && selectedRoom && (
             <div className="mt-12 grid lg:grid-cols-[1.4fr_1fr] gap-8">
               <form onSubmit={guestForm.handleSubmit(onSubmitGuest)} className="bg-card border border-card-border rounded-md p-8 sm:p-10 space-y-5 shadow-sm">
-                <h3 className="font-display text-3xl mb-2">Guest details</h3>
+                <h3 className="font-display text-3xl mb-2">{editingCode ? "Modify reservation" : "Guest details"}</h3>
                 <p className="text-muted-foreground text-sm mb-4">No payment is collected here — confirmation, then a secure pay link by email.</p>
                 <Field label="Full name" error={guestForm.formState.errors.fullName?.message}>
                   <Input {...guestForm.register("fullName", { required: "Required" })} className="h-11" />
@@ -200,20 +367,43 @@ export default function Book() {
                   <Field label="Email" error={guestForm.formState.errors.email?.message}>
                     <Input type="email" {...guestForm.register("email", { required: "Required" })} className="h-11" />
                   </Field>
-                  <Field label="Phone" error={guestForm.formState.errors.phone?.message}>
-                    <Input type="tel" {...guestForm.register("phone", { required: "Required" })} className="h-11" />
-                  </Field>
+                  <div className="sm:col-span-2">
+                    <Label className="font-eyebrow text-muted-foreground">Phone numbers</Label>
+                    <div className="mt-2 space-y-3">
+                      {phoneFields.fields.map((field, index) => (
+                        <div key={field.id} className="flex gap-2">
+                          <Input
+                            type="tel"
+                            {...guestForm.register(`phones.${index}.value`, { required: index === 0 ? "Required" : false })}
+                            className="h-11"
+                            placeholder={index === 0 ? "Primary phone" : "Additional phone"}
+                          />
+                          {phoneFields.fields.length > 1 && (
+                            <Button type="button" variant="outline" size="icon" className="h-11 w-11 shrink-0" onClick={() => phoneFields.remove(index)} aria-label="Remove phone number">
+                              <Trash2 size={16} />
+                            </Button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    {guestForm.formState.errors.phones?.[0]?.value?.message && (
+                      <p className="text-xs text-destructive mt-1">{guestForm.formState.errors.phones[0].value.message}</p>
+                    )}
+                    <Button type="button" variant="outline" size="sm" className="mt-3 rounded-full" onClick={() => phoneFields.append({ value: "" })}>
+                      <Plus size={15} className="mr-1" /> Add phone
+                    </Button>
+                  </div>
                 </div>
                 <Field label="Special requests (optional)">
                   <Textarea rows={4} {...guestForm.register("specialRequests")} className="resize-none" placeholder="Anniversary, dietary preferences, late arrival, etc." />
                 </Field>
-                {createBooking.isError && (
-                  <p className="text-sm text-destructive">{getErrorMessage(createBooking.error)}</p>
+                {(createBooking.isError || updateBooking.isError) && (
+                  <p className="text-sm text-destructive">{getErrorMessage(updateBooking.error ?? createBooking.error)}</p>
                 )}
                 <div className="flex gap-3 pt-2">
-                  <Button type="button" variant="outline" className="rounded-full" onClick={() => setStep("select")}>Back</Button>
-                  <Button type="submit" size="lg" className="flex-1 rounded-full" disabled={createBooking.isPending}>
-                    {createBooking.isPending ? "Confirming…" : "Confirm reservation"}
+                  <Button type="button" variant="outline" className="rounded-full" onClick={() => setStep(editingCode ? "search" : "select")}>Back</Button>
+                  <Button type="submit" size="lg" className="flex-1 rounded-full" disabled={createBooking.isPending || updateBooking.isPending}>
+                    {createBooking.isPending || updateBooking.isPending ? "Saving..." : editingCode ? "Save changes" : "Confirm reservation"}
                   </Button>
                 </div>
               </form>
@@ -228,7 +418,9 @@ export default function Book() {
                   <dl className="mt-5 space-y-3 text-sm border-t border-border pt-5">
                     <Row label="Check in"><span>{format(new Date(search.checkIn), "EEE, d MMM yyyy")}</span></Row>
                     <Row label="Check out"><span>{format(new Date(search.checkOut), "EEE, d MMM yyyy")}</span></Row>
-                    <Row label="Guests"><span>{search.guests}</span></Row>
+                    <Row label="Guests"><span>{totalGuests}</span></Row>
+                    <Row label="Adults"><span>{adultCount}</span></Row>
+                    <Row label="Children"><span>{childCount}</span></Row>
                     <Row label="Nights"><span>{nights}</span></Row>
                   </dl>
                   <div className="border-t border-border mt-5 pt-5 flex justify-between items-end">
@@ -246,7 +438,7 @@ export default function Book() {
               <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-accent/15 grid place-items-center">
                 <Check size={32} className="text-accent" />
               </div>
-              <p className="font-eyebrow text-accent mb-3">Reservation confirmed</p>
+              <p className="font-eyebrow text-accent mb-3">{confirmation.heading ?? "Reservation confirmed"}</p>
               <h2 className="font-display text-4xl sm:text-5xl mb-4">We can't wait to welcome you.</h2>
               <p className="text-muted-foreground">A confirmation has been sent. Please keep this code for your records.</p>
               <div className="mt-8 inline-block bg-muted/50 border border-border rounded-md px-8 py-5">
@@ -254,9 +446,17 @@ export default function Book() {
                 <p className="font-display text-3xl tracking-wider text-primary">{confirmation.confirmationCode}</p>
               </div>
               <p className="mt-6 text-lg">Total · <span className="font-display text-2xl text-primary">{(CURRENCY_SYMBOL[confirmation.currency] ?? confirmation.currency)}{confirmation.totalPrice.toLocaleString()}</span></p>
-              <Button className="mt-8 rounded-full px-8" onClick={() => { setStep("search"); setConfirmation(null); }}>
-                Make another reservation
-              </Button>
+              <div className="mt-8 flex flex-wrap justify-center gap-3">
+                <Button variant="outline" className="rounded-full px-8" onClick={() => { setManageCode(confirmation.confirmationCode); lookupBooking.mutate(confirmation.confirmationCode, { onSuccess: loadBookingForEdit, onError: (error) => setManageError(getErrorMessage(error)) }); }}>
+                  Edit reservation
+                </Button>
+                <Button variant="outline" className="rounded-full px-8" onClick={() => onCancelReservation(confirmation.confirmationCode)} disabled={cancelBooking.isPending}>
+                  Cancel reservation
+                </Button>
+                <Button className="rounded-full px-8" onClick={resetReservation}>
+                  Make another reservation
+                </Button>
+              </div>
             </div>
           )}
         </div>
@@ -294,12 +494,17 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 }
 
 function SearchSummary({ search, nights, onEdit }: { search: SearchForm; nights: number; onEdit: () => void }) {
+  const adultCount = toGuestCount(search.adults);
+  const childCount = toGuestCount(search.children);
+  const totalGuests = adultCount + childCount;
   return (
     <div className="bg-card border border-card-border rounded-md p-5 sm:p-6 flex flex-wrap items-center gap-x-8 gap-y-3 justify-between">
       <div className="flex flex-wrap gap-x-8 gap-y-2 items-center text-sm">
         <span className="flex items-center gap-2"><Calendar size={14} className="text-accent" />{format(new Date(search.checkIn), "d MMM")} → {format(new Date(search.checkOut), "d MMM yyyy")}</span>
         <span className="text-muted-foreground">{nights} night{nights > 1 ? "s" : ""}</span>
-        <span className="flex items-center gap-1.5 text-muted-foreground"><Users size={13} />{search.guests} guest{search.guests > 1 ? "s" : ""}</span>
+        <span className="flex items-center gap-1.5 text-muted-foreground"><Users size={13} />{totalGuests} guest{totalGuests > 1 ? "s" : ""}</span>
+        <span className="text-muted-foreground">{adultCount} adult{adultCount > 1 ? "s" : ""}</span>
+        <span className="text-muted-foreground">{childCount} children</span>
       </div>
       <Button variant="outline" size="sm" className="rounded-full" onClick={onEdit}>Modify search</Button>
     </div>
@@ -335,3 +540,4 @@ function Stepper({ current }: { current: Step }) {
     </div>
   );
 }
+

@@ -18,14 +18,17 @@ export default function BookingWidget({ variant = "hero" }: Props) {
   const [, setLocation] = useLocation();
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
-  const [guests, setGuests] = useState("");
+  const [adults, setAdults] = useState("2");
+  const [children, setChildren] = useState("0");
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams({
       checkIn,
       checkOut,
-      guests: guests || "1",
+      guests: String((Number(adults) || 1) + (Number(children) || 0)),
+      adults: adults || "1",
+      children: children || "0",
     });
     setLocation(`/book?${params.toString()}`);
   };
@@ -37,8 +40,8 @@ export default function BookingWidget({ variant = "hero" }: Props) {
       onSubmit={onSubmit}
       className={
         isHero
-          ? "bg-white/95 backdrop-blur-md border border-white/40 shadow-xl rounded-md p-6 grid sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto] gap-4 items-end"
-          : "bg-card border border-card-border shadow-sm rounded-md p-6 grid sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto] gap-4 items-end"
+          ? "bg-white/95 backdrop-blur-md border border-white/40 shadow-xl rounded-md p-6 grid sm:grid-cols-2 lg:grid-cols-[1fr_1fr_0.8fr_0.8fr_auto] gap-4 items-end"
+          : "bg-card border border-card-border shadow-sm rounded-md p-6 grid sm:grid-cols-2 lg:grid-cols-[1fr_1fr_0.8fr_0.8fr_auto] gap-4 items-end"
       }
     >
       <div>
@@ -66,14 +69,25 @@ export default function BookingWidget({ variant = "hero" }: Props) {
         />
       </div>
       <div>
-        <Label htmlFor="g" className="font-eyebrow text-muted-foreground">Guests</Label>
+        <Label htmlFor="adults" className="font-eyebrow text-muted-foreground">Adults</Label>
         <Input
-          id="g"
+          id="adults"
           type="number"
           min={1}
-          max={6}
-          value={guests}
-          onChange={(e) => setGuests(e.target.value)}
+          value={adults}
+          onChange={(e) => setAdults(e.target.value)}
+          className="mt-2 h-12 text-base"
+          required
+        />
+      </div>
+      <div>
+        <Label htmlFor="children" className="font-eyebrow text-muted-foreground">Children</Label>
+        <Input
+          id="children"
+          type="number"
+          min={0}
+          value={children}
+          onChange={(e) => setChildren(e.target.value)}
           className="mt-2 h-12 text-base"
           required
         />
