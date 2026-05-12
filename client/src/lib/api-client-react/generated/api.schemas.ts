@@ -63,9 +63,12 @@ export interface Booking {
   guestName: string;
   guestEmail: string;
   guestPhone: string;
+  guestPhones: string[];
   checkIn: string;
   checkOut: string;
   guests: number;
+  adults: number;
+  children: number;
   nights: number;
   totalPrice: number;
   currency: string;
@@ -80,10 +83,15 @@ export interface BookingInput {
   guestName: string;
   guestEmail: string;
   guestPhone: string;
+  guestPhones?: string[];
   checkIn: string;
   checkOut: string;
   /** @minimum 1 */
   guests: number;
+  /** @minimum 1 */
+  adults?: number;
+  /** @minimum 0 */
+  children?: number;
   specialRequests?: string;
 }
 
