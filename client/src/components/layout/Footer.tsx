@@ -6,8 +6,8 @@ export default function Footer() {
   const { data: hotel } = useGetHotelInfo();
 
   return (
-    <footer className="bg-[hsl(200_38%_12%)] text-[hsl(36_28%_88%)] mt-20">
-      <div className="mx-auto max-w-7xl px-6 lg:px-10 py-16 grid gap-12 text-center md:text-left md:grid-cols-2 lg:grid-cols-4">
+    <footer className="bg-[hsl(200_38%_12%)] text-[hsl(36_28%_88%)]">
+      <div className="mx-auto max-w-7xl px-6 lg:px-10 py-12 sm:py-14 grid gap-10 text-center md:text-left md:grid-cols-2 lg:grid-cols-4">
         <div>
           <h3 className="font-display text-2xl text-white mb-2">Aurelia Grand</h3>
           <p className="font-eyebrow text-white/60 mb-5">{hotel?.starRating ?? 5}-Star · Since {hotel?.foundedYear ?? 1924}</p>
@@ -66,7 +66,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-white/10">
-        <div className="mx-auto max-w-7xl px-6 lg:px-10 py-6 flex flex-col sm:flex-row justify-between gap-3 text-xs text-white/55">
+        <div className="mx-auto max-w-7xl px-6 lg:px-10 py-5 flex flex-col sm:flex-row justify-between gap-3 text-xs text-white/55">
           <p>© {new Date().getFullYear()} Aurelia Grand. All rights reserved.</p>
           <p>Reception open 24 hours · Concierge 7:00 — 23:00</p>
         </div>

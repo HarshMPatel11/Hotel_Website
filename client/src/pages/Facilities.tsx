@@ -19,7 +19,7 @@ export default function Facilities() {
         image="https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=2400&q=80"
       />
 
-      <section className="py-20 sm:py-28">
+      <section className="pt-16 pb-12 sm:pt-20 sm:pb-16">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           {isLoading && (
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">

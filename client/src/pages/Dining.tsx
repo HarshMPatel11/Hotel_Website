@@ -14,10 +14,10 @@ export default function Dining() {
         image="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=2400&q=80"
       />
 
-      <section className="py-20 sm:py-28">
+      <section className="pt-16 pb-12 sm:pt-20 sm:pb-16">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           {isLoading && <div className="h-96 bg-muted rounded-md animate-pulse" />}
-          <div className="space-y-24">
+          <div className="space-y-16 sm:space-y-20">
             {venues?.map((v, idx) => (
               <article key={v.id} className={`grid lg:grid-cols-2 gap-12 lg:gap-16 items-center ${idx % 2 === 1 ? "lg:[direction:rtl]" : ""}`}>
                 <div className="text-center lg:text-left lg:[direction:ltr]">
@@ -67,7 +67,7 @@ export default function Dining() {
         </div>
       </section>
 
-      <section className="bg-[hsl(200_38%_12%)] text-white py-16 sm:py-20 -mb-20">
+      <section className="bg-[hsl(200_38%_12%)] text-white py-14 sm:py-16">
         <div className="mx-auto max-w-3xl px-6 text-center">
           <p className="font-eyebrow text-[hsl(36_55%_60%)] mb-4">Reservations</p>
           <h2 className="font-display text-3xl sm:text-4xl mb-4">Tables fill quickly in season.</h2>

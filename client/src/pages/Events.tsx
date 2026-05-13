@@ -61,7 +61,7 @@ export default function Events() {
         image="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=2400&q=80"
       />
 
-      <section className="py-20 sm:py-28">
+      <section className="pt-16 pb-12 sm:pt-20 sm:pb-16">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <SectionHeading
             eyebrow="Packages"
@@ -105,7 +105,7 @@ export default function Events() {
         </div>
       </section>
 
-      <section className="py-20 sm:py-28 bg-muted/40">
+      <section className="pt-16 pb-12 sm:pt-20 sm:pb-16 bg-muted/40">
         <div className="mx-auto max-w-3xl px-6 lg:px-10">
           <SectionHeading
             eyebrow="Plan your event"

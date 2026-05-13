@@ -45,7 +45,7 @@ export default function Contact() {
         image="https://images.unsplash.com/photo-1444459094717-a39f1e3e0903?auto=format&fit=crop&w=2400&q=80"
       />
 
-      <section className="py-20 sm:py-28">
+      <section className="pt-16 pb-12 sm:pt-20 sm:pb-16">
         <div className="mx-auto max-w-7xl px-6 lg:px-10 grid lg:grid-cols-[1fr_1.2fr] gap-16">
           <div>
             <SectionHeading
@@ -108,7 +108,7 @@ export default function Contact() {
         </div>
       </section>
 
-      <section className="h-[420px] overflow-hidden border-y border-border sm:h-[520px]">
+      <section className="h-[360px] overflow-hidden border-y border-border sm:h-[420px]">
         <iframe
           title="Hotel location"
           className="h-full w-full"

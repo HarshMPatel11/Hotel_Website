@@ -24,7 +24,7 @@ export default function About() {
         image="https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=2400&q=80"
       />
 
-      <section className="py-24 sm:py-32">
+      <section className="py-16 sm:py-20">
         <div className="mx-auto max-w-4xl px-6 lg:px-10 text-center">
           <p className="font-eyebrow text-accent mb-5">Our story</p>
           <p className="font-display text-3xl sm:text-4xl leading-snug text-foreground">
@@ -34,7 +34,7 @@ export default function About() {
         </div>
       </section>
 
-      <section className="py-20 bg-muted/40">
+      <section className="py-16 sm:py-20 bg-muted/40">
         <div className="mx-auto max-w-7xl px-6 lg:px-10 grid lg:grid-cols-3 gap-12">
           <div>
             <p className="font-eyebrow text-accent mb-4">A timeline</p>
@@ -54,7 +54,7 @@ export default function About() {
         </div>
       </section>
 
-      <section className="py-24 sm:py-32">
+      <section className="py-16 sm:py-20">
         <div className="mx-auto max-w-7xl px-6 lg:px-10 grid lg:grid-cols-2 gap-16 items-center">
           <img
             src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1400&q=80"
@@ -73,7 +73,7 @@ export default function About() {
         </div>
       </section>
 
-      <section className="py-20 bg-muted/40">
+      <section className="py-14 sm:py-16 bg-muted/40">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 text-center">
             <Stat n={`${years}+`} label="Years of hospitality" />
@@ -85,7 +85,7 @@ export default function About() {
       </section>
 
       {testimonials && testimonials.length > 0 && (
-        <section className="py-24 sm:py-32">
+        <section className="pt-16 pb-12 sm:pt-20 sm:pb-16">
           <div className="mx-auto max-w-7xl px-6 lg:px-10">
             <p className="font-eyebrow text-accent text-center mb-4">In their words</p>
             <h2 className="font-display text-4xl sm:text-5xl text-center mb-16">What guests remember.</h2>

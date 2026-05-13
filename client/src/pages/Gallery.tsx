@@ -22,7 +22,7 @@ export default function Gallery() {
         image="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=2400&q=80"
       />
 
-      <section className="py-20 sm:py-28">
+      <section className="pt-16 pb-12 sm:pt-20 sm:pb-16">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <div className="flex flex-wrap gap-2 justify-center mb-12">
             {categories.map((c) => (
